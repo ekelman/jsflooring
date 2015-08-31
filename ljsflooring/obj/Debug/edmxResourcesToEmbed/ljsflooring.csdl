@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ljsflooringModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="category">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="categoryname" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <NavigationProperty Name="categorylistings" Relationship="Self.FK_categorylisting_category" FromRole="category" ToRole="categorylisting" />
+  </EntityType>
+  <EntityType Name="categorylisting">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="listingid" Type="Int32" Nullable="false" />
+    <Property Name="categoryid" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="category" Relationship="Self.FK_categorylisting_category" FromRole="categorylisting" ToRole="category" />
+    <NavigationProperty Name="listing" Relationship="Self.FK_categorylisting_listing" FromRole="categorylisting" ToRole="listing" />
+    <NavigationProperty Name="listings" Relationship="Self.FK_listing_categorylisting" FromRole="categorylisting" ToRole="listing" />
+  </EntityType>
+  <EntityType Name="listing">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="categorylistingid" Type="Int32" Nullable="false" />
+    <Property Name="title" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="image" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="displayorder" Type="Int32" />
+    <Property Name="ratings" Type="Int32" />
+    <NavigationProperty Name="categorylistings" Relationship="Self.FK_categorylisting_listing" FromRole="listing" ToRole="categorylisting" />
+    <NavigationProperty Name="categorylisting" Relationship="Self.FK_listing_categorylisting" FromRole="listing" ToRole="categorylisting" />
+  </EntityType>
+  <Association Name="FK_categorylisting_category">
+    <End Role="category" Type="Self.category" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="categorylisting" Type="Self.categorylisting" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="category">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="categorylisting">
+        <PropertyRef Name="categoryid" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_categorylisting_listing">
+    <End Role="listing" Type="Self.listing" Multiplicity="1" />
+    <End Role="categorylisting" Type="Self.categorylisting" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="listing">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="categorylisting">
+        <PropertyRef Name="listingid" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_listing_categorylisting">
+    <End Role="categorylisting" Type="Self.categorylisting" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="listing" Type="Self.listing" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="categorylisting">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="listing">
+        <PropertyRef Name="categorylistingid" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="ljsflooringEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="categories" EntityType="Self.category" />
+    <EntitySet Name="categorylistings" EntityType="Self.categorylisting" />
+    <EntitySet Name="listings" EntityType="Self.listing" />
+    <AssociationSet Name="FK_categorylisting_category" Association="Self.FK_categorylisting_category">
+      <End Role="category" EntitySet="categories" />
+      <End Role="categorylisting" EntitySet="categorylistings" />
+    </AssociationSet>
+    <AssociationSet Name="FK_categorylisting_listing" Association="Self.FK_categorylisting_listing">
+      <End Role="listing" EntitySet="listings" />
+      <End Role="categorylisting" EntitySet="categorylistings" />
+    </AssociationSet>
+    <AssociationSet Name="FK_listing_categorylisting" Association="Self.FK_listing_categorylisting">
+      <End Role="categorylisting" EntitySet="categorylistings" />
+      <End Role="listing" EntitySet="listings" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

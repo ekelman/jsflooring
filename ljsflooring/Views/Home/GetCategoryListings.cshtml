@@ -1,0 +1,112 @@
+﻿@model IEnumerable<ljsflooring.Data.Listing>
+@using ljsflooring.Helpers
+
+@{
+    ViewBag.Title = "LJS Florring " + ViewBag.categoryname;
+}
+
+<div id="listing-modal" class="modal fade in">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="listing-modal-content"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="jumbotron">
+    <h1>LJS flooring</h1>
+    <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
+    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Request a quote &raquo;</a></p>
+</div>
+
+<h2>Items for @ViewBag.categoryname</h2>
+
+@if (Model != null && Model.Count() > 0)
+{
+    int divCnt = 1;
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-sm-6 col-md-3">
+                <div class="thumbnail">
+                    <img src="@Url.Content(@item.image)" alt="Image">
+                    <div class="caption">
+                        <h3>@item.title</h3>
+                        <p>@item.description</p>
+                        <p>
+                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-plus'></span>", "Details", "GetListigById", "Home", routeValues: new { listingid = @item.id }, htmlAttributes: new { @id = "listingDetails_" + @item.id, @class = "btn btn-primary" })
+                        </p>
+                    </div>
+                </div>
+            </div>
+            if (@divCnt == 4)
+            {
+                <div class="clearfix visible-lg-block visible-md-block"></div>
+                divCnt = 0;
+            }
+            divCnt++;
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        No news entries found.
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $(function () {
+            $.ajaxSetup({ cache: false });
+
+            @foreach (var item in Model)
+            {
+                <text>
+                    $("#listingDetails_@item.id").on("click", function (e) {
+                        // Hide dropdown if any
+                        $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+
+                        $('#listing-modal-content').load(this.href, function () {
+                            $('#listing-modal').modal({
+                                backdrop: 'static',
+                                keyboard: true
+                            }, 'show');
+
+                            bindForm(this);
+                        });
+
+                        return false;
+                    });
+                </text>
+            }
+        });
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#listing-modal').modal('hide');
+
+                            //Refresh
+                            location.reload();
+                        } else {
+                            $('#listing-modal-content').html(result);
+
+                            bindForm();
+                        }
+                    }
+                });
+
+                return false;
+            });
+        }
+    </script>
+}

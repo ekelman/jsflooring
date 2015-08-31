@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ljsflooring.Data.Category>
+@using ljsflooring.Helpers
+@{
+    ViewBag.Title = "LJS flooring";
+}
+
+<div class="jumbotron">
+    <h1>LJS flooring</h1>
+    <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
+    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Request a quote &raquo;</a></p>
+</div>
+
+@{int divCnt = 1;}
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-sm-6 col-md-4">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">@item.categoryname</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="thumbnail thumbnailmainpage">
+                        <img src="@Url.Content(@item.image)" alt="Image">
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> View All",
+                                        null,
+                                        "GetCategoryListings",
+                                        "Home",
+                                        routeValues: new { categoryid = item.id, categoryname = item.categoryname },
+                                        htmlAttributes: new { @class = "btn btn-sm btn-default" })
+                    <label></label>
+                    @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
+                                        null,
+                                        "EditCategory",
+                                        "Home",
+                                        routeValues: new { categoryid = item.id },
+                                        htmlAttributes: new { @class = "btn btn-sm btn-default" })
+                </div>
+            </div>
+        </div>
+        if (@divCnt == 3)
+        {
+            <div class="clearfix visible-lg-block"></div>
+            divCnt = 0;
+        }
+        divCnt++;
+    }
+</div>
+
+
+
+
+

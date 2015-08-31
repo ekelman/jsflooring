@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ljsflooringModelStoreContainer" CdmEntityContainer="ljsflooringEntities">
+    <EntitySetMapping Name="categories">
+      <EntityTypeMapping TypeName="ljsflooringModel.category">
+        <MappingFragment StoreEntitySet="category">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="categoryname" ColumnName="categoryname" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="listings">
+      <EntityTypeMapping TypeName="ljsflooringModel.listing">
+        <MappingFragment StoreEntitySet="listing">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="title" ColumnName="title" />
+          <ScalarProperty Name="description" ColumnName="description" />
+          <ScalarProperty Name="image" ColumnName="image" />
+          <ScalarProperty Name="displayorder" ColumnName="displayorder" />
+          <ScalarProperty Name="ratings" ColumnName="ratings" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="categorylisting" TypeName="ljsflooringModel.categorylisting" StoreEntitySet="categorylisting">
+      <EndProperty Name="category">
+        <ScalarProperty Name="id" ColumnName="categoryid" />
+      </EndProperty>
+      <EndProperty Name="listing">
+        <ScalarProperty Name="id" ColumnName="listingid" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping>

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ljsflooringModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="category">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="categoryname" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <NavigationProperty Name="listings" Relationship="Self.categorylisting" FromRole="category" ToRole="listing" />
+  </EntityType>
+  <EntityType Name="listing">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="title" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="image" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="displayorder" Type="Int32" />
+    <Property Name="ratings" Type="Int32" />
+    <NavigationProperty Name="categories" Relationship="Self.categorylisting" FromRole="listing" ToRole="category" />
+  </EntityType>
+  <Association Name="categorylisting">
+    <End Role="category" Type="Self.category" Multiplicity="*" />
+    <End Role="listing" Type="Self.listing" Multiplicity="*" />
+  </Association>
+  <EntityContainer Name="ljsflooringEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="categories" EntityType="Self.category" />
+    <EntitySet Name="listings" EntityType="Self.listing" />
+    <AssociationSet Name="categorylisting" Association="Self.categorylisting">
+      <End Role="category" EntitySet="categories" />
+      <End Role="listing" EntitySet="listings" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
