@@ -107,6 +107,32 @@ namespace ljsflooring.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult ConfirmDeleteCategory(int categoryid)
+        {
+            ViewBag.categoryid = categoryid;
+            return PartialView("_ConfirmDeleteLCategory");
+        }
+
+        public ActionResult DeleteCategory(int categoryid)
+        {
+            try
+            {
+                var category = _repo.GetCategoryByID(categoryid).ToList();
+
+                _repo.RemoveCategory(categoryid);
+                _repo.Save();
+
+                SetImmageFile setImageFile = new SetImmageFile();
+                setImageFile.DeleteImageFile(category[0].image, this.HttpContext);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return RedirectToAction("Index");
+            }
+        }
+
         public ActionResult AddListing()
         {
             var categories = _repo.GetCategory(true, false);
@@ -159,8 +185,83 @@ namespace ljsflooring.Controllers
 
         public ActionResult GetListigById(int listingid)
         {
-            return PartialView("_ListingDetails");
+            var listings = _repo.GetListingById(listingid).ToList();
+            return PartialView("_ListingDetails",listings);
         }
 
+        public ActionResult EditListing(int listingid, string categoryname)
+        {
+            var listing = _repo.GetListingById(listingid).ToList();
+            ViewBag.CategoryName = categoryname;
+            var categories = _repo.GetCategory(true, false);
+            ViewBag.category_id_list = new SelectList(categories, "id", "categoryname",listing[0].CategoryId);
+
+            return View(listing);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditListing(IEnumerable<Listing> listing, string categoryname)
+        {
+            var categories = _repo.GetCategory(true, false);
+            ViewBag.category_id_list = new SelectList(categories, "id", "categoryname");
+
+            int categoryid = 0;
+            string listingtitle = "";
+            string listingdescription = "";
+            int listingid = 0;
+            string image = "";
+
+            if (ModelState.IsValid)
+            {
+                foreach (Listing item in listing)
+                {
+                    if (Request.Files[0].FileName != String.Empty)
+                    {
+                        SetImmageFile setImageFile = new SetImmageFile();
+                        image = setImageFile.ProcessImageFile(item.image, this.Request, this.Server, this.HttpContext);
+                    }
+                    else
+                    {
+                        image = item.image;
+                    }
+                    categoryid = item.CategoryId;
+                    listingtitle = item.title;
+                    listingdescription = item.description;
+                    listingid = item.id;
+                }
+                _repo.UpdateListing(listingid, categoryid, listingtitle, listingdescription, image);
+                _repo.Save();
+            }
+            return RedirectToAction("GetCategoryListings", new { categoryid = categoryid, categoryname = categoryname });
+        }
+
+        public ActionResult ConfirmDelete(int listingid, string categoryname, int categoryid) 
+        {
+            ViewBag.listingid = listingid;
+            ViewBag.categoryname = categoryname;
+            ViewBag.categoryid = categoryid;
+            return PartialView("_ConfirmDeleteListing");
+        }
+
+        public ActionResult DeleteListing(int listingid, int categoryid, string categoryname)
+        {
+            try
+            {
+                var listing = _repo.GetListingById(listingid).ToList();
+
+                _repo.RemoveListing(listingid);
+                _repo.Save();
+
+                SetImmageFile setImageFile = new SetImmageFile();
+                setImageFile.DeleteImageFile(listing[0].image, this.HttpContext);
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return RedirectToAction("GetCategoryListings", new { categoryid = categoryid, categoryname = categoryname });
+            }
+        }
     }
 }

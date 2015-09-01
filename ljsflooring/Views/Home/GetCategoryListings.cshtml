@@ -13,6 +13,14 @@
     </div>
 </div>
 
+<div id="confirmdelete-modal" class="modal fade in">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="confirmdelete-modal-content"></div>
+        </div>
+    </div>
+</div>
+
 
 <div class="jumbotron">
     <h1>LJS flooring</h1>
@@ -35,7 +43,26 @@
                         <h3>@item.title</h3>
                         <p>@item.description</p>
                         <p>
-                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-plus'></span>", "Details", "GetListigById", "Home", routeValues: new { listingid = @item.id }, htmlAttributes: new { @id = "listingDetails_" + @item.id, @class = "btn btn-primary" })
+                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Details",
+                            "Details",
+                            "GetListigById",
+                            "Home",
+                            routeValues: new { listingid = @item.id },
+                            htmlAttributes: new { @id = "listingDetails_" + @item.id, @class = "btn btn-sm btn-default" })
+                            <label></label>
+                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
+                            "Edit",
+                            "EditListing",
+                            "Home",
+                            routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname },
+                            htmlAttributes: new { @class = "btn btn-sm btn-default" })
+                            <label></label>
+                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
+                            "Delete",
+                            "ConfirmDelete",
+                            "Home",
+                            routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname, categoryid = @item.CategoryId },
+                            htmlAttributes: new { @id = "deleteid_" + @item.id, @class = "btn btn-sm btn-default" })
                         </p>
                     </div>
                 </div>
@@ -60,28 +87,45 @@ else
     @Scripts.Render("~/bundles/jqueryval")
 
     <script type="text/javascript">
+
         $(function () {
             $.ajaxSetup({ cache: false });
 
             @foreach (var item in Model)
             {
-                <text>
-                    $("#listingDetails_@item.id").on("click", function (e) {
-                        // Hide dropdown if any
-                        $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+            <text>
+            $("#listingDetails_@item.id").on("click", function (e) {
+                // Hide dropdown if any
+                $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
 
-                        $('#listing-modal-content').load(this.href, function () {
-                            $('#listing-modal').modal({
-                                backdrop: 'static',
-                                keyboard: true
-                            }, 'show');
+                $('#listing-modal-content').load(this.href, function () {
+                    $('#listing-modal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
 
-                            bindForm(this);
-                        });
+                    //bindForm(this);
+                });
 
-                        return false;
-                    });
-                </text>
+                return false;
+            });
+
+            $("#deleteid_@item.id").on("click", function (e) {
+                // Hide dropdown if any
+                $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+
+                $('#confirmdelete-modal-content').load(this.href, function () {
+                    $('#confirmdelete-modal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+
+                    bindForm(this);
+                });
+
+                return false;
+            });
+            </text>
             }
         });
 
@@ -93,12 +137,12 @@ else
                     data: $(this).serialize(),
                     success: function (result) {
                         if (result.success) {
-                            $('#listing-modal').modal('hide');
+                            $('#confirmdelete-modal').modal('hide');
 
                             //Refresh
                             location.reload();
                         } else {
-                            $('#listing-modal-content').html(result);
+                            $('#confirmdelete-modal-modal-content').html(result);
 
                             bindForm();
                         }

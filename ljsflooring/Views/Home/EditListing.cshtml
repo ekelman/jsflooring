@@ -1,0 +1,82 @@
+﻿@model IList<ljsflooring.Data.Listing>
+
+@{
+    ViewBag.Title = "Edit Item";
+}
+
+@using (Html.BeginForm("EditListing", "Home", FormMethod.Post, new { categoryname = ViewBag.CategoryName, enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+
+    for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="form-horizontal">
+            <hr />
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(m => Model[i].id)
+
+            <div class="form-group">
+                @Html.LabelFor(model => Model[i].title, "Title", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => Model[i].title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => Model[i].title, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => Model[i].description, "Description", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => Model[i].description, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => Model[i].description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => Model[i].CategoryId, "Category Name", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => Model[i].CategoryId, ViewBag.category_id_list as SelectList, "Select", new { @id = "CategoryId", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => Model[i].CategoryId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.Label("Image File", new { @class = "col-md-2 control-label" })
+                <div class="col-md-10">
+                    <div>
+                        <div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <div class="thumbnail">
+                                        @if (Model != null && Model[i].image != null)
+                                        {
+                                            @Html.Raw("<img src=\"" + Model[i].image.Replace("~", "") + "\" />")
+                                        }
+                                        <div class="caption">
+                                            <input type="file" id="FileUpload" name="FileUpload" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+
+        <div>
+            @Html.ActionLink("Back to List", "GetCategoryListings", new { categoryid = Model[i].CategoryId, categoryname = ViewBag.CategoryName })
+        </div>
+    }
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

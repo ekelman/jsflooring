@@ -269,6 +269,9 @@
     <Content Include="Views\Home\AddListing.cshtml" />
     <Content Include="Views\Home\GetCategoryListings.cshtml" />
     <Content Include="Views\Home\_ListingDetails.cshtml" />
+    <Content Include="Views\Home\EditListing.cshtml" />
+    <Content Include="Views\Home\_ConfirmDeleteListing.cshtml" />
+    <Content Include="Views\Home\_ConfirmDeleteLCategory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

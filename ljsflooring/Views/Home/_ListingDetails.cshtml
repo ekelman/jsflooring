@@ -1,75 +1,25 @@
-﻿@model ljsflooring.Data.Listing
+﻿@model IEnumerable<ljsflooring.Data.Listing>
 
+@foreach (var item in Model)
+{
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">@item.title</h4>
+    </div>
 
-<div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h4 class="modal-title">Add Building</h4>
-</div>
-
-<div class="modal-body">
-    <div class="form-horizontal">
-        <div>
-            <h4>Listing</h4>
-            <hr />
-            <dl class="dl-horizontal">
-                <dt>
-                    @Html.DisplayNameFor(model => model.title)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.title)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.description)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.description)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.image)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.image)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.displayorder)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.displayorder)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.ratings)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.ratings)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.CategoryId)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.CategoryId)
-                </dd>
-
-            </dl>
+    <div class="modal-body">
+        <div class="thumbnail">
+            <img src="@Url.Content(@item.image)" alt="Image">
+            <div class="caption">
+                @item.description
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-primary" value="Create">Save changes</button>
-</div>
-
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+}
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

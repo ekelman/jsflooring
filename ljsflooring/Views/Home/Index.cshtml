@@ -4,6 +4,14 @@
     ViewBag.Title = "LJS flooring";
 }
 
+<div id="confirmdelete-modal" class="modal fade in">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="confirmdelete-modal-content"></div>
+        </div>
+    </div>
+</div>
+
 <div class="jumbotron">
     <h1>LJS flooring</h1>
     <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
@@ -17,7 +25,7 @@
         <div class="col-sm-6 col-md-4">
             <div class="panel panel-warning">
                 <div class="panel-heading">
-                    <h3 class="panel-title">@item.categoryname</h3>
+                    <h3 class="panel-title">@item.categoryname.ToUpper()</h3>
                 </div>
                 <div class="panel-body">
                     <div class="thumbnail thumbnailmainpage">
@@ -38,6 +46,13 @@
                                         "Home",
                                         routeValues: new { categoryid = item.id },
                                         htmlAttributes: new { @class = "btn btn-sm btn-default" })
+                    <label></label>
+                    @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
+                                        null,
+                                        "ConfirmDeleteCategory",
+                                        "Home",
+                                        routeValues: new { categoryid = item.id },
+                                        htmlAttributes: new { @id = "deleteid_" + @item.id, @class = "btn btn-sm btn-default" })
                 </div>
             </div>
         </div>
@@ -49,6 +64,61 @@
         divCnt++;
     }
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $(function () {
+            $.ajaxSetup({ cache: false });
+
+           @foreach (var item in Model)
+            {
+                <text>
+                $("#deleteid_@item.id").on("click", function (e) {
+                    // Hide dropdown if any
+                    $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+
+                    $('#confirmdelete-modal-content').load(this.href, function () {
+                        $('#confirmdelete-modal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+
+                        bindForm(this);
+                    });
+
+                    return false;
+                });
+                </text>
+            }
+        });
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#confirmdelete-modal').modal('hide');
+
+                            //Refresh
+                            location.reload();
+                        } else {
+                            $('#confirmdelete-modal-modal-content').html(result);
+
+                            bindForm();
+                        }
+                    }
+                });
+
+                return false;
+            });
+        }
+    </script>
+}
 
 
 

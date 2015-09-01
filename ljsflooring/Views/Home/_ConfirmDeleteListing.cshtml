@@ -1,0 +1,22 @@
+﻿@using (Html.BeginForm("DeleteListing", "Home", new { listingid = ViewBag.listingid, categoryname = @ViewBag.categoryname, categoryid = ViewBag.categoryid }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Confirm Delete</h4>
+    </div>
+
+    <div class="modal-body">
+        Are you sure you want to delete the item?
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <button type="submit" class="btn btn-primary" value="Create">Yes</button>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

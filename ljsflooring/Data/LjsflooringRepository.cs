@@ -76,7 +76,6 @@ namespace ljsflooring.Data
             }
         }
 
-
         public IQueryable<Category> GetCategoryByID(int categoryId)
         {
             return _ctx.Category.Where(r => r.id == categoryId);
@@ -96,6 +95,53 @@ namespace ljsflooring.Data
         public IQueryable<Listing> GetListingByCategoryId(int categroyId)
         {
             return _ctx.Listing.Where(l => l.CategoryId == categroyId).OrderByDescending(o => o.id);           
+        }
+
+
+        public IQueryable<Listing> GetListingById(int listingId)
+        {
+            return _ctx.Listing.Where(l => l.id == listingId);           
+        }
+
+        public bool UpdateListing(int id, int categoryId, string title, string description, string image)
+        {
+            var listing = _ctx.Listing.Find(id);
+            listing.description = description;
+            listing.CategoryId = categoryId;
+            listing.title = title;
+            if (image != null)
+            {
+                listing.image = image;
+            }
+            return true;
+        }
+
+        public bool RemoveListing(int id)
+        {
+            try
+            {
+                var listing = _ctx.Listing.Find(id);
+                _ctx.Listing.Remove(listing);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool RemoveCategory(int id)
+        {
+            try
+            {
+                var category = _ctx.Category.Find(id);
+                _ctx.Category.Remove(category);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
