@@ -1,8 +1,16 @@
-﻿@model IEnumerable<ljsflooring.Data.Listing>
+﻿@*@model IEnumerable<ljsflooring.Data.Listing>*@
+@model PagedList.IPagedList<ljsflooring.Data.Listing>
 @using ljsflooring.Helpers
+@using PagedList.Mvc;
 
 @{
     ViewBag.Title = "LJS Florring " + ViewBag.categoryname;
+}
+
+@{var currentPage = (Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber);}
+@if (currentPage == 0)
+{
+    currentPage = 1;
 }
 
 <div id="listing-modal" class="modal fade in">
@@ -21,14 +29,13 @@
     </div>
 </div>
 
-
 <div class="jumbotron">
     <h1>LJS flooring</h1>
     <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Request a quote &raquo;</a></p>
+    @Html.NoEncodeActionLink("Request a quote &raquo;", null, "Contact", "Home", null, htmlAttributes: new { @class = "btn btn-primary btn-lg" })
 </div>
 
-<h2>Items for @ViewBag.categoryname</h2>
+<h3><span class="text-success">@ViewBag.categoryname</span></h3>
 
 @if (Model != null && Model.Count() > 0)
 {
@@ -49,20 +56,23 @@
                             "Home",
                             routeValues: new { listingid = @item.id },
                             htmlAttributes: new { @id = "listingDetails_" + @item.id, @class = "btn btn-sm btn-default" })
-                            <label></label>
-                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
-                            "Edit",
-                            "EditListing",
-                            "Home",
-                            routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname },
-                            htmlAttributes: new { @class = "btn btn-sm btn-default" })
-                            <label></label>
-                            @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
-                            "Delete",
-                            "ConfirmDelete",
-                            "Home",
-                            routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname, categoryid = @item.CategoryId },
-                            htmlAttributes: new { @id = "deleteid_" + @item.id, @class = "btn btn-sm btn-default" })
+                            @if (Request.IsAuthenticated)
+                            {
+                                <label></label>
+                                @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
+                                "Edit",
+                                "EditListing",
+                                "Home",
+                                routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname },
+                                htmlAttributes: new { @class = "btn btn-sm btn-default" })
+                                <label></label>
+                                @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
+                                "Delete",
+                                "ConfirmDelete",
+                                "Home",
+                                routeValues: new { listingid = @item.id, categoryname = @ViewBag.categoryname, categoryid = @item.CategoryId },
+                                htmlAttributes: new { @id = "deleteid_" + @item.id, @class = "btn btn-sm btn-default" })
+                            }
                         </p>
                     </div>
                 </div>
@@ -72,9 +82,18 @@
                 <div class="clearfix visible-lg-block visible-md-block"></div>
                 divCnt = 0;
             }
+            if (@divCnt == 2)
+            {
+                <div class="clearfix visible-sm-block"></div>
+            }
             divCnt++;
         }
     </div>
+    @*@Html.Label("Page " + currentPage + " of " + Model.PageCount)*@
+    if (Model.PageCount > 1)
+    {
+        @Html.PagedListPager(Model, page => Url.Action("GetCategoryListings", new { page, ViewBag.CategoryId, @ViewBag.categoryname }))
+    }
 }
 else
 {

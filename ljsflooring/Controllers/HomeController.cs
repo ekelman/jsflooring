@@ -8,12 +8,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
+using PagedList;
 
 namespace ljsflooring.Controllers
 {
     public class HomeController : Controller
     {
         private ILjsflooringRepository _repo;
+        int pageSize = 8;
 
         public HomeController(ILjsflooringRepository repo)
         {
@@ -40,20 +42,22 @@ namespace ljsflooring.Controllers
             return View();
         }
 
+        [Authorize]
         public ActionResult AddCategory()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize]
         public ActionResult AddCategory([Bind(Include = "categoryname,image")] Category category)
         {
-            try 
+            try
             {
                 if (ModelState.IsValid && Request.Files[0].FileName != String.Empty)
                 {
                     SetImmageFile setImageFile = new SetImmageFile();
-                    category.image = setImageFile.ProcessImageFile(category.image, this.Request, this.Server, this.HttpContext);
+                    category.image = setImageFile.ProcessImageFile(category.image, 0, this.Request, this.Server, this.HttpContext);
                     _repo.AddCategory(category);
                     _repo.Save();
                     return RedirectToAction("Index");
@@ -71,28 +75,30 @@ namespace ljsflooring.Controllers
             return View();
         }
 
+        [Authorize]
         public ActionResult EditCategory(int categoryid)
         {
             var category = _repo.GetCategoryByID(categoryid).ToList();
             return View(category);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult EditCategory(IEnumerable<Category> category)
         {
             if (ModelState.IsValid)
             {
-                int categoryid=0;
-                string categoryname="";
-                string image="";
+                int categoryid = 0;
+                string categoryname = "";
+                string image = "";
 
-                foreach(Category categorylist in category)
+                foreach (Category categorylist in category)
                 {
                     if (Request.Files[0].FileName != String.Empty)
                     {
                         SetImmageFile setImageFile = new SetImmageFile();
-                        image = setImageFile.ProcessImageFile(categorylist.image, this.Request, this.Server, this.HttpContext);
+                        image = setImageFile.ProcessImageFile(categorylist.image, 0, this.Request, this.Server, this.HttpContext);
                     }
                     else
                     {
@@ -107,23 +113,30 @@ namespace ljsflooring.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         public ActionResult ConfirmDeleteCategory(int categoryid)
         {
             ViewBag.categoryid = categoryid;
             return PartialView("_ConfirmDeleteLCategory");
         }
 
+        [Authorize]
         public ActionResult DeleteCategory(int categoryid)
         {
             try
             {
                 var category = _repo.GetCategoryByID(categoryid).ToList();
+                var listing = _repo.GetListingByCategoryId(categoryid).ToList();
 
                 _repo.RemoveCategory(categoryid);
                 _repo.Save();
 
                 SetImmageFile setImageFile = new SetImmageFile();
                 setImageFile.DeleteImageFile(category[0].image, this.HttpContext);
+                foreach (var items in listing)
+                {
+                    setImageFile.DeleteImageFile(items.image, this.HttpContext);
+                }
 
                 return Json(new { success = true });
             }
@@ -133,6 +146,7 @@ namespace ljsflooring.Controllers
             }
         }
 
+        [Authorize]
         public ActionResult AddListing()
         {
             var categories = _repo.GetCategory(true, false);
@@ -142,6 +156,7 @@ namespace ljsflooring.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult AddListing([Bind(Include = "title,description,image,CategoryId")] Listing listing)
         {
             try
@@ -149,7 +164,7 @@ namespace ljsflooring.Controllers
                 if (ModelState.IsValid && Request.Files[0].FileName != String.Empty)
                 {
                     SetImmageFile setImageFile = new SetImmageFile();
-                    listing.image = setImageFile.ProcessImageFile(listing.image, this.Request, this.Server, this.HttpContext);
+                    listing.image = setImageFile.ProcessImageFile(listing.image, listing.CategoryId, this.Request, this.Server, this.HttpContext);
                     _repo.AddListing(listing);
                     _repo.Save();
                     return RedirectToAction("Index");
@@ -169,38 +184,56 @@ namespace ljsflooring.Controllers
             return View();
         }
 
-        public ActionResult GetCategoryListings(int categoryid, string categoryname)
+        public ActionResult GetCategoryListings(int? page, int? categoryid, string categoryname)
         {
-            if (categoryid != null)
-            {
-                var listings = _repo.GetListingByCategoryId(categoryid).ToList();
-                ViewBag.CategoryName = categoryname;
-                return View(listings);
-            }
-            else
+            if (categoryid == null)
             {
                 return RedirectToAction("Index");
             }
+            else
+            {
+                int categoryId = (int)categoryid;
+                int pageNumber = (page ?? 1);
+                var listings = _repo.GetListingByCategoryId(categoryId).ToList();
+                ViewBag.CategoryName = categoryname;
+                ViewBag.CategoryId = categoryid;
+
+                if (listings.ToPagedList(pageNumber, pageSize).Count == 0)
+                {
+                    if (pageNumber == 1)
+                        return View(listings.ToPagedList(pageNumber, pageSize));
+                    else
+                        return View(listings.ToPagedList(pageNumber - 1, pageSize));
+                }
+                else
+                {
+                    return View(listings.ToPagedList(pageNumber, pageSize));
+                }
+            }
+
+            //return View(listings);
         }
 
         public ActionResult GetListigById(int listingid)
         {
             var listings = _repo.GetListingById(listingid).ToList();
-            return PartialView("_ListingDetails",listings);
+            return PartialView("_ListingDetails", listings);
         }
 
+        [Authorize]
         public ActionResult EditListing(int listingid, string categoryname)
         {
             var listing = _repo.GetListingById(listingid).ToList();
             ViewBag.CategoryName = categoryname;
             var categories = _repo.GetCategory(true, false);
-            ViewBag.category_id_list = new SelectList(categories, "id", "categoryname",listing[0].CategoryId);
+            ViewBag.category_id_list = new SelectList(categories, "id", "categoryname", listing[0].CategoryId);
 
             return View(listing);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult EditListing(IEnumerable<Listing> listing, string categoryname)
         {
             var categories = _repo.GetCategory(true, false);
@@ -219,7 +252,7 @@ namespace ljsflooring.Controllers
                     if (Request.Files[0].FileName != String.Empty)
                     {
                         SetImmageFile setImageFile = new SetImmageFile();
-                        image = setImageFile.ProcessImageFile(item.image, this.Request, this.Server, this.HttpContext);
+                        image = setImageFile.ProcessImageFile(item.image, item.CategoryId, this.Request, this.Server, this.HttpContext);
                     }
                     else
                     {
@@ -236,7 +269,8 @@ namespace ljsflooring.Controllers
             return RedirectToAction("GetCategoryListings", new { categoryid = categoryid, categoryname = categoryname });
         }
 
-        public ActionResult ConfirmDelete(int listingid, string categoryname, int categoryid) 
+        [Authorize]
+        public ActionResult ConfirmDelete(int listingid, string categoryname, int categoryid)
         {
             ViewBag.listingid = listingid;
             ViewBag.categoryname = categoryname;
@@ -244,6 +278,7 @@ namespace ljsflooring.Controllers
             return PartialView("_ConfirmDeleteListing");
         }
 
+        [Authorize]
         public ActionResult DeleteListing(int listingid, int categoryid, string categoryname)
         {
             try

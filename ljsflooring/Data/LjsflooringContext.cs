@@ -12,7 +12,7 @@ namespace ljsflooring.Data
         public LjsflooringContext()
             : base("DefaultConnection")
         {
-            this.Configuration.LazyLoadingEnabled = false;
+            this.Configuration.LazyLoadingEnabled = true;
             this.Configuration.ProxyCreationEnabled = false;
 
             Database.SetInitializer(

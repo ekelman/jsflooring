@@ -11,8 +11,8 @@ namespace ljsflooring.Data
     {
         public LjsflooringMigrationsConfiguration()
         {
-            this.AutomaticMigrationDataLossAllowed = true;
-            this.AutomaticMigrationsEnabled = true;
+            this.AutomaticMigrationDataLossAllowed = false;
+            this.AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(LjsflooringContext context)
@@ -25,7 +25,7 @@ namespace ljsflooring.Data
                 var category = new Category()
                 {
                     categoryname = "Tile",
-                    image = "Tile.jpg",
+                    image = "~\\Images\\Tile.jpg",
                     Listings = new List<Listing>()
                     {
                         new Listing()

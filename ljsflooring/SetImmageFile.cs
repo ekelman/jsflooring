@@ -11,9 +11,9 @@ namespace ljsflooring
 {
     public class SetImmageFile
     {
-        public string ProcessImageFile(string imagename, HttpRequestBase requestFile, HttpServerUtilityBase server, HttpContextBase httpContext)
+        public string ProcessImageFile(string imagename, int categoryid, HttpRequestBase requestFile, HttpServerUtilityBase server, HttpContextBase httpContext)
         {
-            return ResizeSaveImage(0, 600, 400, imagename, requestFile, server, httpContext);
+            return ResizeSaveImage(0, 600, 400, imagename, categoryid, requestFile, server, httpContext);
         }
 
         public void DeleteImageFile(string fileName, HttpContextBase httpContextBase)
@@ -31,14 +31,14 @@ namespace ljsflooring
             return salt;
         }
 
-        private string ResizeSaveImage(int fileIndex, int width, int height, string oldImageName, HttpRequestBase requestFile, HttpServerUtilityBase server, HttpContextBase httpContext)
+        private string ResizeSaveImage(int fileIndex, int width, int height, string oldImageName, int categoryid, HttpRequestBase requestFile, HttpServerUtilityBase server, HttpContextBase httpContext)
         {
             string imageName = "";
             string salt = GenerateSalt();
 
             ImageFormat format = GetImageFormat(requestFile.Files[fileIndex].FileName);
             byte[] firstImageBytes = GetResizedImage(requestFile.Files[fileIndex].InputStream, format, width, height);
-            string firstImagePath = server.MapPath("~/Images/" + salt + "_" + width + "X" + height + "_" + System.IO.Path.GetFileName(requestFile.Files[fileIndex].FileName));
+            string firstImagePath = server.MapPath("~/Images/" + categoryid + "_" + salt + "_" + width + "X" + height + "_" + System.IO.Path.GetFileName(requestFile.Files[fileIndex].FileName));
             System.IO.File.WriteAllBytes(firstImagePath, firstImageBytes);
 
             //delete old image file
@@ -48,7 +48,7 @@ namespace ljsflooring
                 System.IO.File.Delete(fileToDelete);
             }
 
-            return imageName = "~\\Images\\" + salt + "_" + width + "X" + height + "_" + System.IO.Path.GetFileName(requestFile.Files[fileIndex].FileName);
+            return imageName = "~\\Images\\" + categoryid + "_" + salt + "_" + width + "X" + height + "_" + System.IO.Path.GetFileName(requestFile.Files[fileIndex].FileName);
         }
 
         byte[] GetResizedImage(Stream originalStream, ImageFormat imageFormat, int width, int height)

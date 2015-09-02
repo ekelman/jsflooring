@@ -15,7 +15,7 @@
 <div class="jumbotron">
     <h1>LJS flooring</h1>
     <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Request a quote &raquo;</a></p>
+    @Html.NoEncodeActionLink("Request a quote &raquo;", null, "Contact", "Home", null, htmlAttributes: new { @class = "btn btn-primary btn-lg" })
 </div>
 
 @{int divCnt = 1;}
@@ -39,20 +39,23 @@
                                         "Home",
                                         routeValues: new { categoryid = item.id, categoryname = item.categoryname },
                                         htmlAttributes: new { @class = "btn btn-sm btn-default" })
-                    <label></label>
-                    @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
+                    @if (Request.IsAuthenticated)
+                    {
+                        <label></label>
+                        @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-circle-arrow-right'></span> Edit",
                                         null,
                                         "EditCategory",
                                         "Home",
                                         routeValues: new { categoryid = item.id },
                                         htmlAttributes: new { @class = "btn btn-sm btn-default" })
-                    <label></label>
-                    @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
+                        <label></label>
+                        @Html.NoEncodeActionLink("<span class='glyphicon glyphicon-trash'></span> Delete",
                                         null,
                                         "ConfirmDeleteCategory",
                                         "Home",
                                         routeValues: new { categoryid = item.id },
                                         htmlAttributes: new { @id = "deleteid_" + @item.id, @class = "btn btn-sm btn-default" })
+                    }
                 </div>
             </div>
         </div>
@@ -72,25 +75,25 @@
         $(function () {
             $.ajaxSetup({ cache: false });
 
-           @foreach (var item in Model)
+            @foreach (var item in Model)
             {
                 <text>
-                $("#deleteid_@item.id").on("click", function (e) {
-                    // Hide dropdown if any
-                    $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+            $("#deleteid_@item.id").on("click", function (e) {
+                // Hide dropdown if any
+                $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
 
-                    $('#confirmdelete-modal-content').load(this.href, function () {
-                        $('#confirmdelete-modal').modal({
-                            backdrop: 'static',
-                            keyboard: true
-                        }, 'show');
+                $('#confirmdelete-modal-content').load(this.href, function () {
+                    $('#confirmdelete-modal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
 
-                        bindForm(this);
-                    });
-
-                    return false;
+                    bindForm(this);
                 });
-                </text>
+
+                return false;
+            });
+            </text>
             }
         });
 
