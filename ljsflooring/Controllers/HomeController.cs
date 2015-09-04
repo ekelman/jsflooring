@@ -52,6 +52,7 @@ namespace ljsflooring.Controllers
         [Authorize]
         public ActionResult AddCategory([Bind(Include = "categoryname,image")] Category category)
         {
+            ViewBag.errormessage = "";
             try
             {
                 if (ModelState.IsValid && Request.Files[0].FileName != String.Empty)
@@ -68,8 +69,10 @@ namespace ljsflooring.Controllers
                     return View();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                string errormessage = "<div class=\"alert alert-dismissible alert-danger\">" + ex.Message + "</div>";
+                ViewBag.errormessage = errormessage;
                 return View();
             }
             return View();
@@ -87,30 +90,41 @@ namespace ljsflooring.Controllers
         [Authorize]
         public ActionResult EditCategory(IEnumerable<Category> category)
         {
-            if (ModelState.IsValid)
+            ViewBag.errormessage = "";
+            try
             {
-                int categoryid = 0;
-                string categoryname = "";
-                string image = "";
-
-                foreach (Category categorylist in category)
+                if (ModelState.IsValid)
                 {
-                    if (Request.Files[0].FileName != String.Empty)
+                    int categoryid = 0;
+                    string categoryname = "";
+                    string image = "";
+
+                    foreach (Category categorylist in category)
                     {
-                        SetImmageFile setImageFile = new SetImmageFile();
-                        image = setImageFile.ProcessImageFile(categorylist.image, 0, this.Request, this.Server, this.HttpContext);
+                        if (Request.Files[0].FileName != String.Empty)
+                        {
+                            SetImmageFile setImageFile = new SetImmageFile();
+                            image = setImageFile.ProcessImageFile(categorylist.image, 0, this.Request, this.Server, this.HttpContext);
+                        }
+                        else
+                        {
+                            image = categorylist.image;
+                        }
+                        categoryid = categorylist.id;
+                        categoryname = categorylist.categoryname;
                     }
-                    else
-                    {
-                        image = categorylist.image;
-                    }
-                    categoryid = categorylist.id;
-                    categoryname = categorylist.categoryname;
+                    _repo.UpdateCategory(categoryid, categoryname, image);
+                    _repo.Save();
                 }
-                _repo.UpdateCategory(categoryid, categoryname, image);
-                _repo.Save();
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                string errormessage = "<div class=\"alert alert-dismissible alert-danger\">" + ex.Message + "</div>";
+                ViewBag.errormessage = errormessage;
+                return View();
+            }
+            
         }
 
         [Authorize]
@@ -159,6 +173,7 @@ namespace ljsflooring.Controllers
         [Authorize]
         public ActionResult AddListing([Bind(Include = "title,description,image,CategoryId")] Listing listing)
         {
+            ViewBag.errormessage = "";
             try
             {
                 if (ModelState.IsValid && Request.Files[0].FileName != String.Empty)
@@ -179,6 +194,10 @@ namespace ljsflooring.Controllers
             }
             catch (Exception ex)
             {
+                var categories = _repo.GetCategory(true, false);
+                ViewBag.category_id_list = new SelectList(categories, "id", "categoryname");
+                string errormessage = "<div class=\"alert alert-dismissible alert-danger\">" + ex.Message + "</div>";
+                ViewBag.errormessage = errormessage;
                 return View();
             }
             return View();
@@ -236,37 +255,49 @@ namespace ljsflooring.Controllers
         [Authorize]
         public ActionResult EditListing(IEnumerable<Listing> listing, string categoryname)
         {
-            var categories = _repo.GetCategory(true, false);
-            ViewBag.category_id_list = new SelectList(categories, "id", "categoryname");
-
-            int categoryid = 0;
-            string listingtitle = "";
-            string listingdescription = "";
-            int listingid = 0;
-            string image = "";
-
-            if (ModelState.IsValid)
+            ViewBag.errormessage = "";
+            try
             {
-                foreach (Listing item in listing)
+                var categories = _repo.GetCategory(true, false);
+                ViewBag.category_id_list = new SelectList(categories, "id", "categoryname");
+
+                int categoryid = 0;
+                string listingtitle = "";
+                string listingdescription = "";
+                int listingid = 0;
+                string image = "";
+
+                if (ModelState.IsValid)
                 {
-                    if (Request.Files[0].FileName != String.Empty)
+                    foreach (Listing item in listing)
                     {
-                        SetImmageFile setImageFile = new SetImmageFile();
-                        image = setImageFile.ProcessImageFile(item.image, item.CategoryId, this.Request, this.Server, this.HttpContext);
+                        if (Request.Files[0].FileName != String.Empty)
+                        {
+                            SetImmageFile setImageFile = new SetImmageFile();
+                            image = setImageFile.ProcessImageFile(item.image, item.CategoryId, this.Request, this.Server, this.HttpContext);
+                        }
+                        else
+                        {
+                            image = item.image;
+                        }
+                        categoryid = item.CategoryId;
+                        listingtitle = item.title;
+                        listingdescription = item.description;
+                        listingid = item.id;
                     }
-                    else
-                    {
-                        image = item.image;
-                    }
-                    categoryid = item.CategoryId;
-                    listingtitle = item.title;
-                    listingdescription = item.description;
-                    listingid = item.id;
+                    _repo.UpdateListing(listingid, categoryid, listingtitle, listingdescription, image);
+                    _repo.Save();
                 }
-                _repo.UpdateListing(listingid, categoryid, listingtitle, listingdescription, image);
-                _repo.Save();
+                return RedirectToAction("GetCategoryListings", new { categoryid = categoryid, categoryname = categoryname });
             }
-            return RedirectToAction("GetCategoryListings", new { categoryid = categoryid, categoryname = categoryname });
+            catch (Exception ex)
+            {
+                var categories = _repo.GetCategory(true, false);
+                ViewBag.category_id_list = new SelectList(categories, "id", "categoryname");
+                string errormessage = "<div class=\"alert alert-dismissible alert-danger\">" + ex.Message + "</div>";
+                ViewBag.errormessage = errormessage;
+                return View();
+            }
         }
 
         [Authorize]
