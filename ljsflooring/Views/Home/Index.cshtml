@@ -15,13 +15,15 @@
 <div class="jumbotron">
     <h1>LJS flooring</h1>
     <p class="lead">Wood - Tile - Stone - Carpet Installation.</p>
-    @Html.NoEncodeActionLink("Request a quote &raquo;", null, "Contact", "Home", null, htmlAttributes: new { @class = "btn btn-primary btn-lg" })
-    <a href="https://twitter.com/ljsflooring1" target="_blank" class="btn pull-right">
-        <img src="~/Images/twiter.png" alt="" width="50" height="50" />
-    </a>
-    <a href="https://www.facebook.com/Ljsflooring/" target="_blank" class="btn pull-right">
-        <img src="~/Images/facebook.png" alt="" width="50" height="50" />
-    </a>
+    <p>@Html.NoEncodeActionLink("Request a quote &raquo;", null, "Contact", "Home", null, htmlAttributes: new { @class = "btn btn-primary btn-lg" })</p>
+    <p>
+        <a href="https://twitter.com/ljsflooring1" target="_blank" class="btn">
+            <img src="~/Images/twiter.png" alt="" width="50" height="50" />
+        </a>
+        <a href="https://www.facebook.com/Ljsflooring/" target="_blank" class="btn">
+            <img src="~/Images/facebook.png" alt="" width="50" height="50" />
+        </a>
+    </p>
 </div>
 
 @{int divCnt = 1;}
